@@ -13,17 +13,15 @@ def index(request):
 def wiki(request, title):
     listEntries = util.list_entries()
     content = util.get_entry(title)
-    
-    if title.upper() not in map(lambda x:x.upper(), listEntries):
+
+    if content == None:
         message = "The page \"" + title.upper() + "\" does not exist."
         return render(request, "encyclopedia/error.html", {
             "message": message
         })
-    else:
-        
-        #print(content)
+    else:        
         content = markdown2.markdown(content)
-        #print(content)
+
         return render(request, "encyclopedia/content.html", {
             "title": title,
             "content": content,
