@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 
 from . import util
 import markdown2
@@ -31,4 +32,17 @@ def content(request, title):
             "title": title,
             "content": content,
         })
+
+def search(request):
+    if request.method == "POST":
+        q = request.POST['q']
+        content = util.get_entry(q)
+
+        if content == None:        
+            return render(request, "encyclopedia/searchResult.html", {
+                "entries": []
+            })
+        else:
+            return HttpResponseRedirect("/wiki/" + q)
+    return HttpResponseRedirect(reverse("index"))
 
