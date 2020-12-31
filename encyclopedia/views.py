@@ -37,10 +37,16 @@ def search(request):
     if request.method == "POST":
         q = request.POST['q']
         content = util.get_entry(q)
+        results = []
 
-        if content == None:        
+        if content == None:
+            entries = util.list_entries()
+            for entry in entries:
+                if q.lower() in entry.lower():
+                    results.append(entry)
+
             return render(request, "encyclopedia/searchResult.html", {
-                "entries": []
+                "results": results,
             })
         else:
             return HttpResponseRedirect("/wiki/" + q)
