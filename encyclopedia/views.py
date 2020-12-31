@@ -10,7 +10,7 @@ def index(request):
         "entries": util.list_entries()
     })
 
-def wiki(request, title):
+def content(request, title):
     # Getting the content of .md file with specified title
     content = util.get_entry(title)
 
