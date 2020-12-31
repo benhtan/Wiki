@@ -11,16 +11,21 @@ def index(request):
     })
 
 def wiki(request, title):
-    listEntries = util.list_entries()
+    # Getting the content of .md file with specified title
     content = util.get_entry(title)
 
+    # Check if the specified title does not exist
     if content == None:
         message = "The page \"" + title.upper() + "\" does not exist."
         return render(request, "encyclopedia/error.html", {
             "message": message
         })
-    else:        
+    else:
+        # Convert .md to HTML        
         content = markdown2.markdown(content)
+
+        # Looking for title indicated by <h1> tag
+        title = content[content.find("<h1>") + len("<h1>"):content.find("</h1>")]
 
         return render(request, "encyclopedia/content.html", {
             "title": title,
