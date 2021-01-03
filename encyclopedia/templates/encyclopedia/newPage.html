@@ -5,16 +5,16 @@
 {% endblock %}
 
 {% block body %}
-
-    <form method="post">
+    <h3>Create New Page!</h3>
+    <form action="{% url 'new' %}" method="post">
         {% csrf_token %}
         <label>Title</label>
         <div></div>
-        <input type="text" id="title">
+        <input type="text" name="title">
         <div style="padding-bottom: 20px;"></div>
-        <label>Content</label>
+        <label>Content (Markdown syntax)</label>
         <div></div>
-        <textarea id="content" style="height: 40vh; width: 80%;"></textarea>
+        <textarea name="content" style="height: 40vh; width: 80%;"></textarea>
         <input type="Submit" value="Save">
     </form>
 

@@ -70,12 +70,36 @@ def search(request):
     # if this is a get request than go to index
     return HttpResponseRedirect(reverse("index"))
 
-# Create a class of django forms
-class NewPageForm(forms.Form):
-    title = forms.CharField(label="Title")
-
 def new(request):
-    return render(request, "encyclopedia/newPage.html", {
-        "form": NewPageForm()
-    })
+    if request.method == "POST":
+        # Get user input from title field
+        title = request.POST["title"]
+
+        # If user did not enter a title then return an error
+        if title == '':
+            return render(request, "encyclopedia/error.html", {
+                "message": "Title cannot be empty",
+            })
+        
+        # Check if title already exist
+        entries = util.list_entries()
+        if title.lower() in (entry.lower() for entry in entries):
+            return render(request, "encyclopedia/error.html", {
+                "message": "Your title is a duplicate, please choose a different one",
+            })
+
+        # Get user input from content field (Markdown syntax)
+        content = request.POST["content"]
+
+        # If user did not enter a content then return an error
+        if content == '':
+            return render(request, "encyclopedia/error.html", {
+                "message": "Content cannot be empty",
+            })
+
+        # Saving new page to disk    
+        util.save_entry(title, content)
+        return HttpResponseRedirect("/wiki/" + title)
+    else:
+        return render(request, "encyclopedia/newPage.html")
 
