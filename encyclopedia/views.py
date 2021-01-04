@@ -5,6 +5,7 @@ from django import forms
 
 from . import util
 import markdown2
+from random import choice
 
 
 def index(request):
@@ -81,12 +82,20 @@ def new(request):
                 "message": "Title cannot be empty",
             })
         
-        # Check if title already exist
-        entries = util.list_entries()
-        if title.lower() in (entry.lower() for entry in entries):
-            return render(request, "encyclopedia/error.html", {
-                "message": "Your title is a duplicate, please choose a different one",
-            })
+        # Check if title already exist,
+        # only if editPageBool != "True"
+        # editPageBool == "True" when submitting from editPage.html
+
+        # Using .get in case editPageBool dictionary key does not exist, 
+        # for example when submitting from newPage.html instead of editPage.html
+        editPageBool = request.POST.get("editPageBool")
+
+        if editPageBool != "True":
+            entries = util.list_entries()
+            if title.lower() in (entry.lower() for entry in entries):
+                return render(request, "encyclopedia/error.html", {
+                    "message": "Your title is a duplicate, please choose a different one",
+                })
 
         # Get user input from content field (Markdown syntax)
         content = request.POST["content"]
@@ -102,4 +111,32 @@ def new(request):
         return HttpResponseRedirect("/wiki/" + title)
     else:
         return render(request, "encyclopedia/newPage.html")
+
+def edit(request):
+    if request.method == "POST":
+        # Get the title from content.html
+        title = request.POST["title"]
+
+        # Get content with matching title
+        content = util.get_entry(title)
+
+        # Check in case content does not exist
+        if content == None:
+            return render(request, "encyclopedia/error.html", {
+                "message": "Something went wrong: cannot find entry"
+            })
+        
+        # Render html page where user can edit the content
+        return render(request, "encyclopedia/editPage.html", {
+            "title": title,
+            "content": content,
+        })
+    
+    # For GET request
+    return HttpResponseRedirect(reverse("index"))
+
+def random(request):
+    entries = util.list_entries()
+    title = choice(entries)
+    return HttpResponseRedirect("/wiki/" + title)
 
